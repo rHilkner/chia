@@ -90,15 +90,7 @@ get_dest_dir() {
     if (( ${free_space_dir} < ${filesize} )); then
       continue
     fi
-    # if the file is k32 and there are >= 12 files k32 already saved, continue
-    # or if if the file is k33 and there are >= 12 files k33 already saved, continue
-    # else return $dir
-    count_k32=$(ls ${dir} | grep "k32" | wc -l)
-    count_k33=$(ls ${dir} | grep "k33" | wc -l)
-    if (( ${src_file} == *"k32"* && count_k32 >= 12 )) || (( ${src_file} == *"k33"* && count_k33 >= 12 )); then
-      continue
-    fi
-    # return directory that is available and has no more than 12 k32 + 12 k33
+    # return directory that is available and has enough free space
     echo "${dir}"
   done
 }
@@ -156,7 +148,7 @@ copying_to=()
 copying_pids=()
 copying_start_times=()
 
-log "Copying plots from sources:"
+log "Observing plots in sources:"
 printf ' - %s\n' "${src_array[@]}"
 log "Saving plots in destinations:"
 printf ' - %s\n' "${dest_array[@]}"
