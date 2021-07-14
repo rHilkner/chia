@@ -3,6 +3,8 @@ cd ~/chia/chia-blockchain
 chia init
 chia start farmer
 
-for d in /media/cripto-hilkner/*; do
-  chia plots add -d ${d}
+for dir in /media/cripto-hilkner/*; do
+  dir_name=$(echo "${dir}/" | sed 's/ /\\ /g')
+  echo "Adding dir ${dir_name}" 
+  chia plots add -d ${dir_name}
 done
