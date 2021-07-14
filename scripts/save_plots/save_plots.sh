@@ -150,17 +150,18 @@ src_array=("/mnt/crucial_0/chia_plots/*.plot"
            "/mnt/${drive_name}_1/chia_plots/*.plot"
            "/mnt/${drive_name}_2/chia_plots/*.plot"
            "/mnt/${drive_name}_3/chia_plots/*.plot")
-dest_array=("/media/cripto-hilkner/Element"
-            "/media/cripto-hilkner/Elements"
-            "/media/cripto-hilkner/Elements1"
-            "/media/cripto-hilkner/Elements2"
-            "/media/cripto-hilkner/Elements3"
-            "/media/cripto-hilkner/Elements4"
-            "/media/cripto-hilkner/Elements5"
-            "/media/cripto-hilkner/Elements6"
-            "/media/cripto-hilkner/Elements7"
-            "/media/cripto-hilkner/Elements8"
-            "/media/cripto-hilkner/Elements9")
+
+# Adding all possible names of deatination drives/directories
+dest_array=("/media/cripto-hilkner/A4C0C890C0C86A5E")
+dest_array+=("/media/cripto-hilkner/Element" "/media/cripto-hilkner/Elements")
+for (( i = 1; i <= 27; i++ )); do
+  dest_array+=("/media/cripto-hilkner/Elements${i}")
+done
+dest_array+=("/media/cripto-hilkner/Seagate\ Expansion\ Drive")
+for (( i = 1; i <= 27; i++ )); do
+  dest_array+=("/media/cripto-hilkner/Seagate\ Expansion\ Drive${i}")
+done
+# Creating needed arrays
 copying_from=()
 copying_to=()
 copying_pids=()
