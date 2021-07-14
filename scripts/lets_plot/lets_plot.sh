@@ -104,8 +104,8 @@ while true; do
     bkt=${bkt_array[plot_dir_idx]}
     ksize=${plotdir_ksize_array[plot_dir_idx]}
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
-    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
+    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} -c ${contract_address} > ${log_file} 2>&1 &
     busy_dir_array+=( ${dir} )
     pid_array+=($!)
     start_time_array+=( $(date +%s) )
