@@ -59,6 +59,7 @@ count_active_processes() {
 
 # machine and chia variables/parameters
 farmer_key="83afd03a8c9d5a4f688811e66085d35d182b8a9b4b18c6e2bf3be9ec3161267f33f8efcaf6e74a5381f8345e115c2cd1"
+contract_address="xch1km4cvdkshxqaegagmtd2cvuawu0rt7jkhy6x7m9te5627qudsy2qmutfmu"
 pool_key="b960dc5634d5a314af4286aeab75bf78f2452f5abadcfce7e59c864a7a3ce9630297e2f5102577ab02a20991bde162b1"
 drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
 plot_dir_array=("/mnt/crucial_0/chia_plots/"
@@ -69,7 +70,7 @@ plot_dir_array=("/mnt/crucial_0/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
 thr_array=("4" "4" "6" "6" "6" "6")
 bkt_array=("256" "256" "1024" "1024" "1024" "1024")
-first_run_delay=12 # in minutes
+first_run_delay=15 # in minutes
 
 # script parameters
 # NOTE: the index of all arrays correspond to the directory with the same index in plot_dir_array
@@ -92,7 +93,7 @@ log "Starting to plot on directories below:"
 for (( i = 0; i < parallelism; i++ )); do
   echo "- ${plot_dir_array[i]}: ${thr_array[i]} threads / ${bkt_array[i]} buckets"
 done
-echo;
+echo
 
 while true; do
 
@@ -103,8 +104,8 @@ while true; do
     bkt=${bkt_array[plot_dir_idx]}
     ksize=${plotdir_ksize_array[plot_dir_idx]}
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &"
-    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &
+    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
     busy_dir_array+=( ${dir} )
     pid_array+=($!)
     start_time_array+=( $(date +%s) )
@@ -152,7 +153,7 @@ while true; do
     fi
   done
 
-  echo;
+  echo
 
   log "DEBUG: pid_array"
   printf ' - %s\n' "${pid_array[@]}"
