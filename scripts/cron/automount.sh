@@ -1,5 +1,5 @@
 # crontab -e
-# * * * * * bash /home/cripto-hilkner/chia/scripts/cron/automount.sh
+# * * * * * bash /home/cripto-hilkner/chia/scripts/cron/automount.sh > /home/cripto-hilkner/chia/scripts/cron/logs/automount_$(date +'%Y-%m-%d_%H_%M_%S').log
 
 # Remember to do this below before executing the script:
 # sudo chmod a+rwx /usr/share/polkit-1/actions/org.freedesktop.UDisks2.policy
@@ -16,6 +16,6 @@
 #      <allow_active>yes</allow_active>
 #    </defaults>
 
-for partition in $(ls /dev/sd*1 2> /dev/null); do
+for partition in $(ls /dev/sd**{1,2}* 2> /dev/null); do
 	udisksctl mount -b ${partition}
-done;
+done

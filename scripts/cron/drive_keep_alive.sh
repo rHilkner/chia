@@ -1,5 +1,5 @@
 # crontab -e
-# * * * * * bash /home/cripto-hilkner/chia/scripts/cron/drive_keep_alive.sh
+# * * * * * bash /home/cripto-hilkner/chia/scripts/cron/drive_keep_alive.sh > /home/cripto-hilkner/chia/scripts/cron/logs/drive_keep_alive_$(date +'%Y-%m-%d_%H_%M_%S').log
 
 # Setting script directory as work directory
 cd "$(dirname "${BASH_SOURCE[0]}")"

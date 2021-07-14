@@ -126,7 +126,15 @@ check_done_copies() {
     if ! ps -p ${pid} > /dev/null; then
       start_time=${copying_start_times[i]}
       end_time=$(date +%s)
-      log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in $((end_time-start_time)) seconds"
+      total_time=$((end_time-start_time))
+      if ((total_time < 30)); then
+        log "PID ${copying_pids[i]}: file [${copying_from[i]}] copying to [${copying_to[i]}] seems to have failed, since it finished the copy in ${total_time} seconds. Unmounting desination folder [${copying_to}]."
+        filesystem_name=$(df | grep "${copying_to}" | awk '{print $1}')
+        umount ${filesystem_name}
+        avoid_list+=(${filesystem_name})
+      else
+        log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
+      fi
       copying_from=( $(remove_from_array_idx ${i} "${copying_from[@]}") )
       copying_to=( $(remove_from_array_idx ${i} "${copying_to[@]}") )
       copying_pids=( $(remove_from_array_idx ${i} "${copying_pids[@]}") )
@@ -155,6 +163,7 @@ copying_from=()
 copying_to=()
 copying_pids=()
 copying_start_times=()
+avoid_list=()
 
 log "Copying plots from sources:"
 printf ' - %s\n' "${src_array[@]}"
@@ -204,5 +213,8 @@ while true; do
 
   log "DEBUG: copying_pids"
   printf ' - %s\n' "${copying_pids[@]}"
+
+  log "DEBUG: avoid_list"
+  printf ' - %s\n' "${avoid_list[@]}"
 
 done
