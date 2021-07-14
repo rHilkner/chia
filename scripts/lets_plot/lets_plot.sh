@@ -67,11 +67,14 @@ plot_dir_array=("/mnt/crucial_0/chia_plots/"
                 "/mnt/${drive_name}_1/chia_plots/"
                 "/mnt/${drive_name}_2/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
-thr_array=("6" "6" "6" "6" "4" "4")
-bkt_array=("1024" "1024" "1024" "1024" "256" "256")
+thr_array=("4" "4" "6" "6" "6" "6")
+bkt_array=("256" "256" "1024" "1024" "1024" "1024")
 first_run_delay=12 # in minutes
 
 # script parameters
+# NOTE: the index of all arrays correspond to the directory with the same index in plot_dir_array
+# .. There's one logical PID for each drive (0 if no process going on)
+# .. one start time (0 if no process), one ksize (keeps changing 32-33-32-33), etc
 parallelism=${#plot_dir_array[@]}
 pid_array=()
 start_time_array=()
@@ -85,8 +88,11 @@ for (( i = 0; i <= parallelism; i++ )); do
   plotdir_ksize_array+=("32")
 done
 
-log "Starting to plot with parallelism of ${parallelism} using ${thr} threads and ${bkt} buckets. First run delay of ${first_run_delay} minutes. Plots will be made on directories below:"
-printf ' - %s\n' "${plot_dir_array[@]}"
+log "Starting to plot on directories below:"
+for (( i = 0; i <= parallelism; i++ )); do
+  echo "- ${plot_dir_array[i]}: ${thr_array[i]} threads / ${bkt_array[i]} buckets"
+done
+echo;
 
 while true; do
 
@@ -95,8 +101,8 @@ while true; do
     dir=${plot_dir_array[plot_dir_idx]}
     ksize=${plotdir_ksize_array[plot_dir_idx]}
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &"
-    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &
+    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &"
+    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &
     busy_dir_array+=( ${dir} )
     pid_array+=($!)
     start_time_array+=( $(date +%s) )
@@ -104,7 +110,7 @@ while true; do
     # Refreshing plots ksize and plot_dir_idx
     if (( plotdir_ksize_array[plot_dir_idx] == "32"  )); then
       plotdir_ksize_array[plot_dir_idx]="33"
-    elif (( plotdir_ksize_array[plot_dir_idx] == "33" ))
+    elif (( plotdir_ksize_array[plot_dir_idx] == "33" )); then
       plotdir_ksize_array[plot_dir_idx]="32"
     fi
     plot_dir_idx=$(( (plot_dir_idx+1) % parallelism ))
