@@ -89,7 +89,7 @@ for (( i = 0; i <= parallelism; i++ )); do
 done
 
 log "Starting to plot on directories below:"
-for (( i = 0; i <= parallelism; i++ )); do
+for (( i = 0; i < parallelism; i++ )); do
   echo "- ${plot_dir_array[i]}: ${thr_array[i]} threads / ${bkt_array[i]} buckets"
 done
 echo;
@@ -99,6 +99,8 @@ while true; do
   while (( $(count_active_processes) < parallelism )); do
 
     dir=${plot_dir_array[plot_dir_idx]}
+    thr=${thr_array[plot_dir_idx]}
+    bkt=${bkt_array[plot_dir_idx]}
     ksize=${plotdir_ksize_array[plot_dir_idx]}
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
     log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -p ${pool_key} > ${log_file} 2>&1 &"
