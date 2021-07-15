@@ -116,12 +116,11 @@ while true; do
     elif (( plotdir_ksize_array[plot_dir_idx] == "33" )); then
       plotdir_ksize_array[plot_dir_idx]="32"
     fi
-    plot_dir_idx=$(( (plot_dir_idx+1) % parallelism ))
 
     if ${first_run}; then
       log "First run: applying delay between plots of ${first_run_delay} minutes"
       sleep $(( 60*${first_run_delay} ))
-      ((plot_dir_idx++))
+      plot_dir_idx=$(( (plot_dir_idx+1) % parallelism ))
     fi
   done
 
