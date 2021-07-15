@@ -21,8 +21,8 @@ while (( i < ${#partitions[@]} )); do
     ((j++))
   else
     log "mount -t ntfs-3g ${partition} ${file_path}"
-    echo 1q2w3e | sudo -S mkdir -p ${file_path}
-    echo 1q2w3e | sudo -S mount -t ntfs-3g ${partition} ${file_path}
+    cat ~/chia/scripts/utils/get_pw.txt | sudo -S mkdir -p ${file_path}
+    cat ~/chia/scripts/utils/get_pw.txt | sudo -S mount -t ntfs-3g ${partition} ${file_path}
     exit_code=$?
     if (( exit_code == 0 )); then
       ((i++))

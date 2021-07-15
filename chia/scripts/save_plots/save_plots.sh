@@ -131,7 +131,7 @@ check_done_copies() {
       if ((total_time < 30)); then
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] copying to [${copying_to[i]}] seems to have failed, since it finished the copy in ${total_time} seconds. Unmounting desination folder [${copying_to}]."
         filesystem_name=$(df | grep "${copying_to}" | awk '{print $1}')
-        umount ${filesystem_name}
+        cat ~/chia/scripts/utils/get_pw.txt | sudo -S umount ${filesystem_name}
         avoid_list+=(${filesystem_name})
       else
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
