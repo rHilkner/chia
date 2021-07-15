@@ -100,6 +100,7 @@ get_dest_dir() {
     fi
     # return directory that is available and has no more than 12 k32 + 12 k33
     echo "${dir}"
+    break
   done
 }
 
