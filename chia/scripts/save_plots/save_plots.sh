@@ -9,7 +9,7 @@ is_element_in_array() {
   element=$1
   shift # shift arguments to the left
   array=($@)
-  for value in "${array[@]}"; do
+  for value in ${array[@]}; do
     if [[ ${element} == ${value} ]]; then
       is_element_in_array="true"
       break
@@ -18,12 +18,12 @@ is_element_in_array() {
   echo ${is_element_in_array}
 }
 
-# example of use: `index=$(get_index ${value} "${array[@]}")`
+# example of use: `index=$(get_index ${value} ${array[@]})`
 get_index() {
   element=$1
   shift # shift arguments to the left
   array=($@)
-  for i in "${!array[@]}"; do
+  for i in ${!array[@]}; do
     if [[ "${my_array[$i]}" = "${value}" ]]; then
       echo $i
       break
@@ -31,7 +31,7 @@ get_index() {
   done
 }
 
-# example of use: `array=( $(remove_from_array_idx ${index} "${array[@]}") )`
+# example of use: `array=( $(remove_from_array_idx ${index} ${array[@]}) )`
 remove_from_array() {
   value=$1
   shift # shift arguments to the left
@@ -45,7 +45,7 @@ remove_from_array() {
   echo "${array[@]}"
 }
 
-# example of use: `array=( $(remove_from_array ${value} "${array[@]}") )`
+# example of use: `array=( $(remove_from_array ${value} ${array[@]}) )`
 remove_from_array_idx() {
   idx=$1
   shift # shift arguments to the left
@@ -58,15 +58,15 @@ remove_from_array_idx() {
 get_src_file() {
   # gets all files that are in the source_patterns
   src_files=()
-  for src_pattern in "${src_array[@]}"; do
+  for src_pattern in ${src_array[@]}; do
     src_files_aux=( $(ls ${src_pattern} 2> /dev/null) )
     if [[ ! -z ${src_files_aux[0]} ]]; then
       src_files+=( ${src_files_aux[@]} )
     fi
   done
   # remove files that are in copying_from array
-  for file in "${copying_from[@]}"; do
-    src_files=( $(remove_from_array ${file} "${src_files[@]}") )
+  for file in ${copying_from[@]}; do
+    src_files=( $(remove_from_array ${file} ${src_files[@]}) )
   done
   # return only first file of the list of files (or none if there is none)
   if (( ${#src_files[@]} > 0 )); then
@@ -78,9 +78,9 @@ get_src_file() {
 get_dest_dir() {
   src_file=$1
   # for each dest_dir from dest_array
-  for dir in "${dest_array[@]}"; do
+  for dir in ${dest_array[@]}; do
     # if it is busy (in copying_to array), continue
-    if $(is_element_in_array ${dir} "${copying_to[@]}"); then
+    if $(is_element_in_array ${dir} ${copying_to[@]}); then
       continue
     fi
     filesize=$(stat -c%s "${src_file}")
@@ -136,10 +136,10 @@ check_done_copies() {
       else
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
       fi
-      copying_from=( $(remove_from_array_idx ${i} "${copying_from[@]}") )
-      copying_to=( $(remove_from_array_idx ${i} "${copying_to[@]}") )
-      copying_pids=( $(remove_from_array_idx ${i} "${copying_pids[@]}") )
-      copying_start_times=( $(remove_from_array_idx ${i} "${copying_start_times[@]}") )
+      copying_from=( $(remove_from_array_idx ${i} ${copying_from[@]}) )
+      copying_to=( $(remove_from_array_idx ${i} ${copying_to[@]}) )
+      copying_pids=( $(remove_from_array_idx ${i} ${copying_pids[@]}) )
+      copying_start_times=( $(remove_from_array_idx ${i} ${copying_start_times[@]}) )
     fi
   done
 }
