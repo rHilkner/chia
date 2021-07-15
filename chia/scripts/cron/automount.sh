@@ -1,21 +1,20 @@
+#!/bin/bash
+
 # crontab -e
 # * * * * * bash /home/cripto-hilkner/chia/scripts/cron/automount.sh > /home/cripto-hilkner/chia/scripts/cron/logs/automount_$(date +'%Y-%m-%d_%H_%M_%S').log
 
-# Remember to do this below before executing the script:
-# sudo chmod a+rwx /usr/share/polkit-1/actions/org.freedesktop.UDisks2.policy
-# vim /usr/share/polkit-1/actions/org.freedesktop.UDisks2.policy
-#
-# lines 9, 93, 168
-# under `org.freedesktop.udisks2.filesystem-mount`
-# ..    `org.freedesktop.udisks2.filesystem-mount-system`
-# ..    `org.freedesktop.udisks2.filesystem-mount-other-seat`
-# .. change last part of block to be like this:
-#    <defaults>
-#      <allow_any>yes</allow_any>
-#      <allow_inactive>yes</allow_inactive>
-#      <allow_active>yes</allow_active>
-#    </defaults>
+log() { echo "[$(date)] $1" ; }
 
 for partition in $(ls /dev/sd**{1,2}* 2> /dev/null); do
-	udisksctl mount -b ${partition}
+  file_name=$(basename -- "${partition}")
+  file_path="/media/cripto-hilkner/${file_name}"
+
+  # only mount partition if it's not yet mounted
+  if [[ -z $(df | grep ${partition}) ]]; then
+    # echo 1q2w3e | sudo -S echo ${partition}
+    # echo 1q2w3e | sudo -S echo ${file_path}
+    log "mount -t ntfs-3g ${partition} ${file_path}"
+    echo 1q2w3e | sudo -S mkdir -p ${file_path}
+    echo 1q2w3e | sudo -S mount -t ntfs-3g ${partition} ${file_path}
+  fi
 done

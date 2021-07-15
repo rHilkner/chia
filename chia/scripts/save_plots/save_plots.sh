@@ -153,15 +153,7 @@ src_array=("/mnt/crucial_0/chia_plots/*.plot"
            "/mnt/${drive_name}_3/chia_plots/*.plot")
 
 # Adding all possible names of deatination drives/directories
-dest_array=("/media/cripto-hilkner/A4C0C890C0C86A5E")
-dest_array+=("/media/cripto-hilkner/Element" "/media/cripto-hilkner/Elements")
-for (( i = 1; i <= 27; i++ )); do
-  dest_array+=("/media/cripto-hilkner/Elements${i}")
-done
-dest_array+=("/media/cripto-hilkner/Seagate\ Expansion\ Drive")
-for (( i = 1; i <= 27; i++ )); do
-  dest_array+=("/media/cripto-hilkner/Seagate\ Expansion\ Drive${i}")
-done
+dest_array=( $(df | grep "/media/cripto-hilkner" | awk 'NF>1{print $NF}') )
 # Creating needed arrays
 copying_from=()
 copying_to=()
