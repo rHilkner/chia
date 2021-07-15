@@ -121,7 +121,7 @@ save_file_to_dir() {
 # checks for copies that already finished and removes them from copying_from, copying_to, copying_pids arrays
 check_done_copies() {
   last_idx=$(( ${#copying_pids[@]}-1 ))
-  # Going from last index to 0, with -1 increment
+  # going from last index to 0, with -1 increment
   for i in $(seq ${last_idx} -1 0); do
     pid=${copying_pids[$i]}
     if ! ps -p ${pid} > /dev/null; then
@@ -152,9 +152,9 @@ src_array=("/mnt/crucial_0/chia_plots/*.plot"
            "/mnt/${drive_name}_2/chia_plots/*.plot"
            "/mnt/${drive_name}_3/chia_plots/*.plot")
 
-# Adding all possible names of deatination drives/directories
+# adding all possible names of destination drives/directories
 dest_array=( $(df | grep "/media/cripto-hilkner" | awk 'NF>1{print $NF}') )
-# Creating needed arrays
+# creating needed arrays
 copying_from=()
 copying_to=()
 copying_pids=()
