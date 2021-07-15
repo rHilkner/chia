@@ -113,7 +113,7 @@ while true; do
     # Refreshing plots ksize and plot_dir_idx
     if [[ plotdir_ksize_array[plot_dir_idx] == "32" ]]; then
       plotdir_ksize_array[plot_dir_idx]="33"
-    elif [[ plotdir_ksize_array[plot_dir_idx] == "33"]]; then
+    elif [[ plotdir_ksize_array[plot_dir_idx] == "33" ]]; then
       plotdir_ksize_array[plot_dir_idx]="32"
     fi
 
