@@ -39,14 +39,6 @@ remove_from_array_idx() {
   echo "${array[@]}"
 }
 
-get_plot_dir_idx() {
-  for (( i = 0; i < ${#plot_dir_array[@]}; i++ )); do
-    if $(is_element_in_array ${plot_dir_array[i]} "${busy_dir_array[@]}"); then
-      continue
-    fi
-  done
-}
-
 count_active_processes() {
   count=0
   for pid in ${pid_array[@]}; do
@@ -82,7 +74,7 @@ start_time_array=()
 plotdir_ksize_array=()
 first_run="true"
 plot_dir_idx=0
-for (( i = 0; i <= parallelism; i++ )); do
+for (( i = 0; i < parallelism; i++ )); do
   # setting one pid for each plot_dir
   pid_array+=(0)
   start_time_array+=(0)
@@ -106,14 +98,13 @@ while true; do
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
     log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
     nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
-    busy_dir_array+=( ${dir} )
-    pid_array+=($!)
-    start_time_array+=( $(date +%s) )
+    pid_array[plot_dir_idx]=$!
+    start_time_array[plot_dir_idx]=$(date +%s)
 
     # Refreshing plots ksize and plot_dir_idx
-    if [[ plotdir_ksize_array[plot_dir_idx] == "32" ]]; then
+    if (( plotdir_ksize_array[plot_dir_idx] == "32" )); then
       plotdir_ksize_array[plot_dir_idx]="33"
-    elif [[ plotdir_ksize_array[plot_dir_idx] == "33" ]]; then
+    elif (( plotdir_ksize_array[plot_dir_idx] == "33" )); then
       plotdir_ksize_array[plot_dir_idx]="32"
     fi
 
@@ -134,7 +125,7 @@ while true; do
 
       pid=${pid_array[i]}
 
-      if ! ps -p ${pid} > /dev/null; then
+      if (( pid != 0 )) && ! ps -p ${pid} > /dev/null; then
         start_time=${start_time_array[i]}
         end_time=$(date +%s)
         log "One plot just finished with total time of: $((end_time-start_time)) seconds"

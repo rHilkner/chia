@@ -95,7 +95,7 @@ get_dest_dir() {
     # else return $dir
     count_k32=$(ls ${dir} | grep "plot-k32-" | wc -l)
     count_k33=$(ls ${dir} | grep "plot-k33-" | wc -l)
-    if ( [[ ${src_file} == *"plot-k32-"* ]] &&  ((count_k32 >= 12 )) ) || ( [[ ${src_file} == *"plot-k33-"* ]] && (( count_k33 >= 12 )) ); then
+    if ( [[ ${src_file} == *"plot-k32-"* ]] && ((count_k32 >= 12 )) ) || ( [[ ${src_file} == *"plot-k33-"* ]] && (( count_k33 >= 12 )) ); then
       continue
     fi
     # return directory that is available and has no more than 12 k32 + 12 k33
