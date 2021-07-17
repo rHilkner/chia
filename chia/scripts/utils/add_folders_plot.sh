@@ -1,3 +1,7 @@
+#!/bin/bash
+
+log() { echo "[$(date)] $1" ; }
+
 log "---------- CHIA ----------"
 
 . ~/chia/chia-blockchain/activate
