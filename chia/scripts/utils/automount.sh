@@ -8,6 +8,7 @@ j=1
 partitions=( $(ls /dev/sd**{1,2}* 2> /dev/null) )
 while (( i < ${#partitions[@]} )); do
   partition=${partitions[i]}
+  #file_path="/media/chia-storage/hd${j}"
   file_path="/media/cripto-hilkner/hd${j}"
   # only mount partition if it's not yet mounted
   if [[ ! -z $(df | grep ${partition}) ]]; then

@@ -4,9 +4,7 @@ log "---------- CHIA ----------"
 chia init
 chia start farmer
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
 
 for dir in /media/cripto-hilkner/*; do
 #for dir in /media/chia-storage/*; do
@@ -15,16 +13,12 @@ for dir in /media/cripto-hilkner/*; do
   chia plots add -d "${dir_name}"
 done
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
 
 chia plots show
 deactivate
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
 
 log "---------- FLAX ----------"
 
@@ -32,9 +26,7 @@ log "---------- FLAX ----------"
 flax init
 flax start farmer
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
 
 for dir in /media/cripto-hilkner/*; do
 #for dir in /media/chia-storage/*; do
@@ -43,12 +35,9 @@ for dir in /media/cripto-hilkner/*; do
   flax plots add -d "${dir_name}"
 done
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
 
 flax plots show
+deactivate
 
-echo
-echo "---------------------------------------"
-echo
+echo; echo "---------------------------------------"; echo
