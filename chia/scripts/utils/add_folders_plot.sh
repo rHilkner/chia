@@ -26,7 +26,7 @@ echo; echo "---------------------------------------"; echo
 
 log "---------- FLAX ----------"
 
-. ~/chia/chia-blockchain/activate
+. ~/chia/flax-blockchain/activate
 flax init
 flax start farmer
 
