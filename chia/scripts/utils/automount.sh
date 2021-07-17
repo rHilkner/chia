@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# crontab -e
-# * * * * * bash /home/cripto-hilkner/chia/scripts/cron/automount.sh > /home/cripto-hilkner/chia/scripts/cron/logs/automount_$(date +'%Y-%m-%d_%H_%M_%S').log
-
 log() { echo "[$(date)] $1" ; }
 
 i=0
