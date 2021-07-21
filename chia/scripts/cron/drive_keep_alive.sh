@@ -8,7 +8,7 @@ log() { echo "[$(date)] $1" ; }
 # Setting script directory as work directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-sudo chmod a+rwx -R /media
+cat ~/chia/scripts/utils/get_pw.txt | sudo -S chmod a+rwx -R /media
 
 touch drive_keep_alive.itmp
 base_dir="/media/cripto-hilkner"

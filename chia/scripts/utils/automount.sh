@@ -2,7 +2,7 @@
 
 log() { echo "[$(date)] $1" ; }
 
-sudo chmod a+rwx -R /media
+cat ~/chia/scripts/utils/get_pw.txt | sudo -S chmod a+rwx -R /media
 
 i=0
 j=1
