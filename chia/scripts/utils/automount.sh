@@ -2,6 +2,8 @@
 
 log() { echo "[$(date)] $1" ; }
 
+sudo chmod a+rwx -R /media
+
 i=0
 j=1
 

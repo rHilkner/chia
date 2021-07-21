@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# crontab -e
+# 0 0 * * * bash /home/cripto-hilkner/chia/scripts/cron/maintenance.sh >> /home/cripto-hilkner/chia/logs/cron/maintenance/maintenance.log 2>&1
+
 log() { echo "[$(date)] $1" ; }
 
 log "Starting new maintenance job"
