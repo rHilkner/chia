@@ -13,10 +13,10 @@ while (( i < ${#partitions[@]} )); do
   #file_path="/media/chia-storage/hd${j}"
   file_path="/media/cripto-hilkner/hd${j}"
   # only mount partition if it's not yet mounted
-  if [[ ! -z $(df | grep ${partition}) ]]; then
+  if [[ ! -z $(df | grep -w ${partition}) ]]; then
     log "Partition ${partition} already mounted"
     ((i++))
-  elif [[ ! -z $(df | grep ${file_path}) ]]; then
+  elif [[ ! -z $(df | grep -w ${file_path}) ]]; then
     log "Drive name ${file_path} already exist"
     ((j++))
   else

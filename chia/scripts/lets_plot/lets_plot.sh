@@ -49,19 +49,38 @@ count_active_processes() {
   echo ${count}
 }
 
+get_next_ksize() {
+  current_k32=0
+  current_k33=0
+  for (( i = 0; i < parallelism; i++ )); do
+    if [[ ${plotdir_ksize_array[i]} == "32" ]]; then
+      ((current_k32++))
+    elif [[ ${plotdir_ksize_array[i]} == "33" ]]; then
+      ((current_k33++))
+    fi
+  done
+  read -r plots_ksize32 plots_ksize33 <<< $(cat ~/chia/scripts/utils/plot_queue.txt)
+  if (( plots_ksize32 - current_k32 > 0 )); then
+    plot_ksize="32"
+  elif (( plots_ksize33 - current_k33 > 0 )); then
+    plot_ksize="33"
+  else
+    plot_ksize="0"
+  fi
+  echo plot_ksize
+}
+
 # machine and chia variables/parameters
 farmer_key="83afd03a8c9d5a4f688811e66085d35d182b8a9b4b18c6e2bf3be9ec3161267f33f8efcaf6e74a5381f8345e115c2cd1"
 contract_address="xch1km4cvdkshxqaegagmtd2cvuawu0rt7jkhy6x7m9te5627qudsy2qmutfmu"
 pool_key="b960dc5634d5a314af4286aeab75bf78f2452f5abadcfce7e59c864a7a3ce9630297e2f5102577ab02a20991bde162b1"
 drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
-plot_dir_array=("/mnt/crucial_0/chia_plots/"
-                "/mnt/crucial_1/chia_plots/"
-                "/mnt/${drive_name}_0/chia_plots/"
+plot_dir_array=("/mnt/${drive_name}_0/chia_plots/"
                 "/mnt/${drive_name}_1/chia_plots/"
                 "/mnt/${drive_name}_2/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
-thr_array=("4" "4" "6" "6" "6" "6")
-bkt_array=("256" "256" "1024" "1024" "1024" "1024")
+thr_array=("6" "6" "6" "6")
+bkt_array=("1024" "1024" "1024" "1024")
 first_run_delay=15 # in minutes
 
 # script parameters
@@ -78,7 +97,7 @@ for (( i = 0; i < parallelism; i++ )); do
   # setting one pid for each plot_dir
   pid_array+=(0)
   start_time_array+=(0)
-  plotdir_ksize_array+=("32")
+  plotdir_ksize_array+=("0")
 done
 
 log "Starting to plot on directories below:"
@@ -91,22 +110,20 @@ while true; do
 
   while (( $(count_active_processes) < parallelism )); do
 
+    plotdir_ksize_array[plot_dir_idx]=$(get_next_ksize)
     dir=${plot_dir_array[plot_dir_idx]}
     thr=${thr_array[plot_dir_idx]}
     bkt=${bkt_array[plot_dir_idx]}
     ksize=${plotdir_ksize_array[plot_dir_idx]}
+    if [[ ksize == "0" ]]; then
+      log "No more plots to be done, exiting script"
+      exit 0
+    fi
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
     log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
     nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
     pid_array[plot_dir_idx]=$!
     start_time_array[plot_dir_idx]=$(date +%s)
-
-    # Refreshing plots ksize and plot_dir_idx
-    if (( plotdir_ksize_array[plot_dir_idx] == "32" )); then
-      plotdir_ksize_array[plot_dir_idx]="33"
-    elif (( plotdir_ksize_array[plot_dir_idx] == "33" )); then
-      plotdir_ksize_array[plot_dir_idx]="32"
-    fi
 
     if ${first_run}; then
       log "First run: applying delay between plots of ${first_run_delay} minutes"
@@ -121,7 +138,7 @@ while true; do
 
   while (( $(count_active_processes) >= parallelism )); do
     # check if any plot finished
-    for (( i = 0; i < ${#pid_array[@]}; i++ )); do
+    for (( i = 0; i < parallelism; i++ )); do
 
       pid=${pid_array[i]}
 
