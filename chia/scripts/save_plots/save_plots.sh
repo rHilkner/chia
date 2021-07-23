@@ -118,6 +118,16 @@ save_file_to_dir() {
   log "PID ${pid}: file [${file}] started saving to [${dir}]"
 }
 
+refresh_plot_queue() {
+  count_k32=0
+  count_k33=0
+  for dir in ${dest_array[@]}; do
+    count_k32+=(( 12 - $(ls ${dir} | grep "*plot-k32-*" | wc -l) ))
+    count_k33+=(( 12 - $(ls ${dir} | grep "*plot-k33-*" | wc -l) ))
+  done
+  echo "${count_k32} ${count_k33}" > ~/chia/scripts/utils/plot_queue.txt
+}
+
 # checks for copies that already finished and removes them from copying_from, copying_to, copying_pids arrays
 check_done_copies() {
   last_idx=$(( ${#copying_pids[@]}-1 ))
@@ -136,6 +146,7 @@ check_done_copies() {
       else
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
       fi
+      refresh_plot_queue
       copying_from=( $(remove_from_array_idx ${i} ${copying_from[@]}) )
       copying_to=( $(remove_from_array_idx ${i} ${copying_to[@]}) )
       copying_pids=( $(remove_from_array_idx ${i} ${copying_pids[@]}) )
@@ -166,6 +177,8 @@ printf ' - %s\n' "${src_array[@]}"
 log "Saving plots in destinations:"
 printf ' - %s\n' "${dest_array[@]}"
 echo;
+
+refresh_plot_queue
 
 while true; do
   # wait until there is a source file to be saved
