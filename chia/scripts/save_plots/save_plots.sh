@@ -4,7 +4,7 @@ set -e
 
 log() { echo "[$(date)] $1" ; }
 
-# returns minimum value of array
+# returns minimum value between 2 values
 min() {
     echo $(($1<$2 ? $1 : $2))
 }
