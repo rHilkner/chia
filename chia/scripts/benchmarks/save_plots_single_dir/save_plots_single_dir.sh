@@ -2,7 +2,7 @@
 
 log() { echo "[$(date)] $1" ; }
 
-drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
+drive_name=$(bash /home/cripto-hilkner/chia/scripts/utils/get_drive_name.sh)
 source_pattern="/mnt/${drive_name}/chia_plots/*.plot"
 final_dir="/media/cripto-hilkner/Elements/"
 

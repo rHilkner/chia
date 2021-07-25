@@ -127,7 +127,7 @@ check_done_copies() {
   done
 }
 
-drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
+drive_name=$(bash /home/cripto-hilkner/chia/scripts/utils/get_drive_name.sh)
 src_array=("/mnt/${drive_name}_0/chia_plots/*.plot"
            "/mnt/${drive_name}_1/chia_plots/*.plot"
            "/mnt/${drive_name}_2/chia_plots/*.plot"

@@ -8,13 +8,13 @@ log() { echo "[$(date)] $1" ; }
 # Setting script directory as work directory
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-cat ~/chia/scripts/utils/get_pw.txt | sudo -S chmod a+rwx -R /media
+cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S chmod a+rwx -R /media
 
 touch drive_keep_alive.itmp
 base_dir="/media/cripto-hilkner"
 for drive_dir in $(ls ${base_dir}); do
   log "Keeping alive drive ${base_dir}/${drive_dir}"
-  cat ~/chia/scripts/utils/get_pw.txt | sudo -S cp drive_keep_alive.itmp "${base_dir}/${drive_dir}/drive_keep_alive.itmp"
-  cat ~/chia/scripts/utils/get_pw.txt | sudo -S rm "${base_dir}/${drive_dir}/drive_keep_alive.itmp"
+  cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S cp drive_keep_alive.itmp "${base_dir}/${drive_dir}/drive_keep_alive.itmp"
+  cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S rm "${base_dir}/${drive_dir}/drive_keep_alive.itmp"
 done
 rm drive_keep_alive.itmp

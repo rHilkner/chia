@@ -4,17 +4,16 @@ log() { echo "[$(date)] $1" ; }
 
 log "---------- CHIA ----------"
 
-. ~/chia/chia-blockchain/activate
+. /home/cripto-hilkner/chia/chia-blockchain/activate
 chia init
 chia start farmer
 
 echo; echo "---------------------------------------"; echo
 
 for dir in /media/cripto-hilkner/*; do
-#for dir in /media/chia-storage/*; do
-  dir_name=$(echo "${dir}/" | sed 's/ /\\ /g')
-  echo "Adding dir ${dir_name}" 
-  chia plots add -d "${dir_name}"
+#for dir in /media/cripto-hilkner/*; do
+  echo "Adding dir ${dir}"
+  chia plots add -d "${dir}"
 done
 
 echo; echo "---------------------------------------"; echo
@@ -26,17 +25,16 @@ echo; echo "---------------------------------------"; echo
 
 log "---------- FLAX ----------"
 
-. ~/chia/flax-blockchain/activate
+. /home/cripto-hilkner/chia/flax-blockchain/activate
 flax init
 flax start farmer
 
 echo; echo "---------------------------------------"; echo
 
 for dir in /media/cripto-hilkner/*; do
-#for dir in /media/chia-storage/*; do
-  dir_name=$(echo "${dir}/" | sed 's/ /\\ /g')
-  echo "Adding dir ${dir_name}" 
-  flax plots add -d "${dir_name}"
+#for dir in /media/cripto-hilkner/*; do
+  echo "Adding dir ${dir}"
+  flax plots add -d "${dir}"
 done
 
 echo; echo "---------------------------------------"; echo

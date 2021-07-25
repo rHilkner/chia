@@ -19,7 +19,7 @@ remove_from_array() {
 farmer_key="83afd03a8c9d5a4f688811e66085d35d182b8a9b4b18c6e2bf3be9ec3161267f33f8efcaf6e74a5381f8345e115c2cd1"
 pool_key="b960dc5634d5a314af4286aeab75bf78f2452f5abadcfce7e59c864a7a3ce9630297e2f5102577ab02a20991bde162b1"
 
-drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
+drive_name=$(bash /home/cripto-hilkner/chia/scripts/utils/get_drive_name.sh)
 plotdir_array=("/mnt/${drive_name}_0/chia_plots/"
                "/mnt/${drive_name}_1/chia_plots/"
                "/mnt/${drive_name}_2/chia_plots/"

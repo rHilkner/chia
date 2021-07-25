@@ -5,7 +5,7 @@
 
 log() { echo "[$(date)] $1" ; }
 
-cat ~/chia/scripts/utils/get_pw.txt | sudo -S cd .
+cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S cd .
 
 error_hds=()
 
@@ -21,6 +21,6 @@ else
   printf ' - %s\n' "${error_hds[@]}"
   echo "---"
   log "Full reseting all drives..."
-  bash ~/chia/scripts/utils/full_drives_reset.sh
+  bash /home/cripto-hilkner/chia/scripts/utils/full_drives_reset.sh
   echo "---"
 fi

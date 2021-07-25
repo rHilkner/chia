@@ -116,16 +116,24 @@ save_file_to_dir() {
   copying_pids+=(${pid})
   copying_start_times+=( $(date +%s) )
   log "PID ${pid}: file [${file}] started saving to [${dir}]"
+  sleep 1
+  refresh_plot_queue
 }
 
 refresh_plot_queue() {
   count_k32=0
   count_k33=0
   for dir in ${dest_array[@]}; do
-    count_k32+=(( 12 - $(ls ${dir} | grep "*plot-k32-*" | wc -l) ))
-    count_k33+=(( 12 - $(ls ${dir} | grep "*plot-k33-*" | wc -l) ))
+    sum_k32=$(ls ${dir} | grep "plot-k32-*" | wc -l)
+    sum_k33=$(ls ${dir} | grep "plot-k33-*" | wc -l)
+    count_k32=$(( count_k32 + 12 - sum_k32 ))
+    count_k33=$(( count_k33 + 12 - sum_k33 ))
+    # (( count_k32+=12-$(ls ${dir} | grep "plot-k32-*" | wc -l) ))
+    # (( count_k33+=12-$(ls ${dir} | grep "plot-k33-*" | wc -l) ))
+    # echo ${count_k32}
+    # echo ${count_k33}
   done
-  echo "${count_k32} ${count_k33}" > ~/chia/scripts/utils/plot_queue.txt
+  echo "${count_k32} ${count_k33}" > /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt
 }
 
 # checks for copies that already finished and removes them from copying_from, copying_to, copying_pids arrays
@@ -139,9 +147,9 @@ check_done_copies() {
       end_time=$(date +%s)
       total_time=$((end_time-start_time))
       if ((total_time < 30)); then
-        log "PID ${copying_pids[i]}: file [${copying_from[i]}] copying to [${copying_to[i]}] seems to have failed, since it finished the copy in ${total_time} seconds. Unmounting desination folder [${copying_to}]."
-        filesystem_name=$(df | grep "${copying_to}" | awk '{print $1}')
-        cat ~/chia/scripts/utils/get_pw.txt | sudo -S umount ${filesystem_name}
+        log "PID ${copying_pids[i]}: file [${copying_from[i]}] copying to [${copying_to[i]}] seems to have failed, since it finished the copy in ${total_time} seconds. Unmounting desination folder [${copying_to[i]}]."
+        filesystem_name=$(df | grep "${copying_to[i]}" | awk '{print $1}')
+        cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S umount ${filesystem_name}
         avoid_list+=(${filesystem_name})
       else
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
@@ -155,7 +163,7 @@ check_done_copies() {
   done
 }
 
-drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
+drive_name=$(bash /home/cripto-hilkner/chia/scripts/utils/get_drive_name.sh)
 src_array=("/mnt/crucial_0/chia_plots/*.plot"
            "/mnt/crucial_1/chia_plots/*.plot"
            "/mnt/${drive_name}_0/chia_plots/*.plot"
@@ -176,7 +184,7 @@ log "Copying plots from sources:"
 printf ' - %s\n' "${src_array[@]}"
 log "Saving plots in destinations:"
 printf ' - %s\n' "${dest_array[@]}"
-echo;
+echo
 
 refresh_plot_queue
 
@@ -193,7 +201,7 @@ while true; do
     src_file=$(get_src_file)
   done
 
-  echo;
+  echo
 
   # now that we have a source file, let's copy this file to any destination directory
   # let's get any available destination directory or wait until there is any
@@ -209,7 +217,7 @@ while true; do
     dest_dir=$(get_dest_dir ${src_file})
   done
 
-  echo;
+  echo
 
   # now lets save source_file to destination_directory
   save_file_to_dir ${src_file} ${dest_dir}

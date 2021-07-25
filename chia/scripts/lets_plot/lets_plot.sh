@@ -59,7 +59,7 @@ get_next_ksize() {
       ((current_k33++))
     fi
   done
-  read -r plots_ksize32 plots_ksize33 <<< $(cat ~/chia/scripts/utils/plot_queue.txt)
+  read -r plots_ksize32 plots_ksize33 <<< $(cat /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt)
   if (( plots_ksize32 - current_k32 > 0 )); then
     plot_ksize="32"
   elif (( plots_ksize33 - current_k33 > 0 )); then
@@ -67,21 +67,21 @@ get_next_ksize() {
   else
     plot_ksize="0"
   fi
-  echo plot_ksize
+  echo ${plot_ksize}
 }
 
 # machine and chia variables/parameters
 farmer_key="83afd03a8c9d5a4f688811e66085d35d182b8a9b4b18c6e2bf3be9ec3161267f33f8efcaf6e74a5381f8345e115c2cd1"
 contract_address="xch1km4cvdkshxqaegagmtd2cvuawu0rt7jkhy6x7m9te5627qudsy2qmutfmu"
 pool_key="b960dc5634d5a314af4286aeab75bf78f2452f5abadcfce7e59c864a7a3ce9630297e2f5102577ab02a20991bde162b1"
-drive_name=$(bash ~/chia/scripts/utils/get_drive_name.sh)
+drive_name=$(bash /home/cripto-hilkner/chia/scripts/utils/get_drive_name.sh)
 plot_dir_array=("/mnt/${drive_name}_0/chia_plots/"
                 "/mnt/${drive_name}_1/chia_plots/"
                 "/mnt/${drive_name}_2/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
-thr_array=("6" "6" "6" "6")
+thr_array=("10" "10" "10" "10")
 bkt_array=("1024" "1024" "1024" "1024")
-first_run_delay=15 # in minutes
+first_run_delay=20 # in minutes
 
 # script parameters
 # NOTE: the index of all arrays correspond to the directory with the same index in plot_dir_array
@@ -111,6 +111,8 @@ while true; do
   while (( $(count_active_processes) < parallelism )); do
 
     plotdir_ksize_array[plot_dir_idx]=$(get_next_ksize)
+    read -r plots_ksize32 plots_ksize33 <<< $(cat /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt)
+    log "plot_queue: k32=${plots_ksize32} / k33=${plots_ksize33}"
     dir=${plot_dir_array[plot_dir_idx]}
     thr=${thr_array[plot_dir_idx]}
     bkt=${bkt_array[plot_dir_idx]}
@@ -120,7 +122,8 @@ while true; do
       exit 0
     fi
     log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -c -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    touch ${log_file}
+    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
     nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
     pid_array[plot_dir_idx]=$!
     start_time_array[plot_dir_idx]=$(date +%s)
@@ -131,6 +134,9 @@ while true; do
       plot_dir_idx=$(( (plot_dir_idx+1) % parallelism ))
     fi
   done
+
+  log "DEBUG: pid_array"
+  printf ' - %s\n' "${pid_array[@]}"
 
   first_run="false"
 
@@ -161,9 +167,6 @@ while true; do
   done
 
   echo
-
-  log "DEBUG: pid_array"
-  printf ' - %s\n' "${pid_array[@]}"
 
 done
 

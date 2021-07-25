@@ -5,13 +5,18 @@
 
 log() { echo "[$(date)] $1" ; }
 
-cat ~/chia/scripts/utils/get_pw.txt | sudo -S cd .
+# granting sudo privileges
+cat /home/cripto-hilkner/chia/scripts/utils/get_pw.txt | sudo -S cd .
 
 log "Full drives reset: Going to unmount all drives, unbind+bind all pci drivers, unmount+mount all drives and then remove+add all drives to chia farm"
 echo "---"
 log "Unmounting all drives"
-bash ~/chia/scripts/utils/umount_all.sh
+bash /home/cripto-hilkner/chia/scripts/utils/umount_all.sh
 echo "---"
+
+# source: https://tomlankhorst.nl/unresponsive-usb-unbind-bind-linux
+# .. this have been tested and it's the solution to an intermitent drives that start...
+# ... giving 'Input/Output error' after a while connected
 log "Unbinding + binding all XHCI drivers"
 
 for driver in /sys/bus/pci/drivers/xhci_hcd/*:*; do
@@ -26,16 +31,17 @@ done
 
 
 echo "---"
+sleep 60
 log "Unmounting all drives again"
-bash ~/chia/scripts/utils/umount_all.sh
+bash /home/cripto-hilkner/chia/scripts/utils/umount_all.sh
 echo "---"
 log "Mounting all drives"
-bash ~/chia/scripts/utils/automount.sh
+bash /home/cripto-hilkner/chia/scripts/utils/automount.sh
 echo "---"
 log "Removing old drives from chia farm"
-bash ~/chia/scripts/utils/remove_folders_plot.sh
+bash /home/cripto-hilkner/chia/scripts/utils/remove_folders_plot.sh
 echo "---"
 log "Adding all drives to chia farm"
-bash ~/chia/scripts/utils/add_folders_plot.sh
+bash /home/cripto-hilkner/chia/scripts/utils/add_folders_plot.sh
 
 log "End of execution"
