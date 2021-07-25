@@ -4,6 +4,11 @@ set -e
 
 log() { echo "[$(date)] $1" ; }
 
+# returns minimum value of array
+min() {
+    echo $(($1<$2 ? $1 : $2))
+}
+
 is_element_in_array() {
   is_element_in_array="false"
   element=$1
@@ -126,6 +131,8 @@ refresh_plot_queue() {
   for dir in ${dest_array[@]}; do
     sum_k32=$(ls ${dir} | grep "plot-k32-*" | wc -l)
     sum_k33=$(ls ${dir} | grep "plot-k33-*" | wc -l)
+    sum_k32=$(min ${sum_k32} 0)
+    sum_k33=$(min ${sum_k33} 0)
     count_k32=$(( count_k32 + 12 - sum_k32 ))
     count_k33=$(( count_k33 + 12 - sum_k33 ))
     # (( count_k32+=12-$(ls ${dir} | grep "plot-k32-*" | wc -l) ))
