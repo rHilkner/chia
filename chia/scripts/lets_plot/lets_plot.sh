@@ -39,6 +39,18 @@ remove_from_array_idx() {
   echo "${array[@]}"
 }
 
+is_there_enough_free_space() {
+  dest_array=( $(df | grep "/media/cripto-hilkner" | awk 'NF>1{print $NF}') )
+  for dir in ${dest_array[@]}; do
+    free_space_dir_in_kb=$(df | grep -w ${dir} | awk '{print $4}')
+    if (( free_space_dir_in_kb <= 102 * 1024 * 1024 )); then
+      echo false
+    else
+      echo true
+    fi
+  done
+}
+
 count_active_processes() {
   count=0
   for pid in ${pid_array[@]}; do
@@ -80,7 +92,7 @@ plot_dir_array=("/mnt/${drive_name}_0/chia_plots/"
                 "/mnt/${drive_name}_2/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
 thr_array=("10" "10" "10" "10")
-bkt_array=("1024" "1024" "1024" "1024")
+bkt_array=("128" "128" "128" "128")
 first_run_delay=20 # in minutes
 
 # script parameters
@@ -106,7 +118,14 @@ for (( i = 0; i < parallelism; i++ )); do
 done
 echo
 
+. /home/cripto-hilkner/chia/chia-blockchain/activate
+
 while true; do
+
+  if ! $(is_there_enough_free_space); then
+    log "No free space in disk, ending execution"
+    exit 0
+  fi
 
   while (( $(count_active_processes) < parallelism )); do
 
@@ -121,10 +140,12 @@ while true; do
       log "No more plots to be done, exiting script"
       exit 0
     fi
-    log_file="/home/cripto-hilkner/chia/logs/madmax/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
+    log_file="/home/cripto-hilkner/chia/logs/plots/plot_k${ksize}_$(date +'%Y-%m-%d_%H_%M_%S').log"
     touch ${log_file}
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
-    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
+    # log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    # nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
+    log "Starting plot: nohup chia plots create -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    nohup chia plots create -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
     pid_array[plot_dir_idx]=$!
     start_time_array[plot_dir_idx]=$(date +%s)
 

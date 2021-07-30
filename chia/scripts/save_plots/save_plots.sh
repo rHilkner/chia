@@ -4,6 +4,11 @@ set -e
 
 log() { echo "[$(date)] $1" ; }
 
+# returns maximum value between 2 values
+max() {
+    echo $(($1>$2 ? $1 : $2))
+}
+
 # returns minimum value between 2 values
 min() {
     echo $(($1<$2 ? $1 : $2))
@@ -126,19 +131,21 @@ save_file_to_dir() {
 }
 
 refresh_plot_queue() {
+  dest_array=( $(df | grep "/media/cripto-hilkner" | awk 'NF>1{print $NF}') )
   count_k32=0
   count_k33=0
   for dir in ${dest_array[@]}; do
+    # only count this directory as valid if it has free space for at least 1 plot (102GiB)
+    free_space_dir_in_kb=$(df | grep -w ${dir} | awk '{print $4}')
+    if (( free_space_dir_in_kb < 102*1024*1024 )); then
+      continue
+    fi
     sum_k32=$(ls ${dir} | grep "plot-k32-*" | wc -l)
     sum_k33=$(ls ${dir} | grep "plot-k33-*" | wc -l)
-    sum_k32=$(min ${sum_k32} 0)
-    sum_k33=$(min ${sum_k33} 0)
+    sum_k32=$(min ${sum_k32} 12)
+    sum_k33=$(min ${sum_k33} 12)
     count_k32=$(( count_k32 + 12 - sum_k32 ))
     count_k33=$(( count_k33 + 12 - sum_k33 ))
-    # (( count_k32+=12-$(ls ${dir} | grep "plot-k32-*" | wc -l) ))
-    # (( count_k33+=12-$(ls ${dir} | grep "plot-k33-*" | wc -l) ))
-    # echo ${count_k32}
-    # echo ${count_k33}
   done
   echo "${count_k32} ${count_k33}" > /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt
 }
@@ -161,7 +168,6 @@ check_done_copies() {
       else
         log "PID ${copying_pids[i]}: file [${copying_from[i]}] finished saving to [${copying_to[i]}] in ${total_time} seconds"
       fi
-      refresh_plot_queue
       copying_from=( $(remove_from_array_idx ${i} ${copying_from[@]}) )
       copying_to=( $(remove_from_array_idx ${i} ${copying_to[@]}) )
       copying_pids=( $(remove_from_array_idx ${i} ${copying_pids[@]}) )
@@ -202,6 +208,7 @@ while true; do
     log "Waiting for a plot to finish"
   fi
   while [[ -z ${src_file} ]]; do
+    refresh_plot_queue
     check_done_copies
     echo -n "."
     sleep 10
@@ -212,6 +219,7 @@ while true; do
 
   # now that we have a source file, let's copy this file to any destination directory
   # let's get any available destination directory or wait until there is any
+  refresh_plot_queue
   check_done_copies
   dest_dir=$(get_dest_dir ${src_file})
   if [[ -z ${dest_dir} ]]; then
@@ -220,6 +228,7 @@ while true; do
   while [[ -z ${dest_dir} ]]; do
     echo -n "."
     sleep 10
+    refresh_plot_queue
     check_done_copies
     dest_dir=$(get_dest_dir ${src_file})
   done
