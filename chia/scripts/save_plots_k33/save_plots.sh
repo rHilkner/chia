@@ -100,7 +100,15 @@ get_dest_dir() {
     if (( ${free_space_dir} < ${filesize} )); then
       continue
     fi
-    # return directory that is not being copied to and has enough free space
+    # if the file is k32 and there are >= 12 files k32 already saved, continue
+    # or if if the file is k33 and there are >= 12 files k33 already saved, continue
+    # else return $dir
+    count_k32=$(ls ${dir} | grep "plot-k32-" | wc -l)
+    count_k33=$(ls ${dir} | grep "plot-k33-" | wc -l)
+    if ( [[ ${src_file} == *"plot-k32-"* ]] && ((count_k32 >= 12 )) ) || ( [[ ${src_file} == *"plot-k33-"* ]] && (( count_k33 >= 12 )) ); then
+      continue
+    fi
+    # return directory that is available and has no more than 12 k32 + 12 k33
     echo "${dir}"
     break
   done
@@ -119,6 +127,27 @@ save_file_to_dir() {
   copying_start_times+=( $(date +%s) )
   log "PID ${pid}: file [${file}] started saving to [${dir}]"
   sleep 1
+  refresh_plot_queue
+}
+
+refresh_plot_queue() {
+  dest_array=( $(df | grep "/media/cripto-hilkner" | awk 'NF>1{print $NF}') )
+  count_k32=0
+  count_k33=0
+  for dir in ${dest_array[@]}; do
+    # only count this directory as valid if it has free space for at least 1 plot (102GiB)
+    free_space_dir_in_kb=$(df | grep -w ${dir} | awk '{print $4}')
+    if (( free_space_dir_in_kb < 102*1024*1024 )); then
+      continue
+    fi
+    sum_k32=$(ls ${dir} | grep "plot-k32-*" | wc -l)
+    sum_k33=$(ls ${dir} | grep "plot-k33-*" | wc -l)
+    sum_k32=$(min ${sum_k32} 12)
+    sum_k33=$(min ${sum_k33} 12)
+    count_k32=$(( count_k32 + 12 - sum_k32 ))
+    count_k33=$(( count_k33 + 12 - sum_k33 ))
+  done
+  echo "${count_k32} ${count_k33}" > /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt
 }
 
 # checks for copies that already finished and removes them from copying_from, copying_to, copying_pids arrays
@@ -170,6 +199,8 @@ log "Saving plots in destinations:"
 printf ' - %s\n' "${dest_array[@]}"
 echo
 
+refresh_plot_queue
+
 while true; do
   # wait until there is a source file to be saved
   src_file=$(get_src_file)
@@ -177,6 +208,7 @@ while true; do
     log "Waiting for a plot to finish"
   fi
   while [[ -z ${src_file} ]]; do
+    refresh_plot_queue
     check_done_copies
     echo -n "."
     sleep 10
@@ -187,6 +219,7 @@ while true; do
 
   # now that we have a source file, let's copy this file to any destination directory
   # let's get any available destination directory or wait until there is any
+  refresh_plot_queue
   check_done_copies
   dest_dir=$(get_dest_dir ${src_file})
   if [[ -z ${dest_dir} ]]; then
@@ -195,6 +228,7 @@ while true; do
   while [[ -z ${dest_dir} ]]; do
     echo -n "."
     sleep 10
+    refresh_plot_queue
     check_done_copies
     dest_dir=$(get_dest_dir ${src_file})
   done

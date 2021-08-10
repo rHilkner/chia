@@ -61,6 +61,27 @@ count_active_processes() {
   echo ${count}
 }
 
+get_next_ksize() {
+  current_k32=0
+  current_k33=0
+  for (( i = 0; i < parallelism; i++ )); do
+    if [[ ${plotdir_ksize_array[i]} == "32" ]]; then
+      ((current_k32++))
+    elif [[ ${plotdir_ksize_array[i]} == "33" ]]; then
+      ((current_k33++))
+    fi
+  done
+  read -r plots_ksize32 plots_ksize33 <<< $(cat /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt)
+  if (( plots_ksize32 - current_k32 > 0 )); then
+    plot_ksize="32"
+  elif (( plots_ksize33 - current_k33 > 0 )); then
+    plot_ksize="33"
+  else
+    plot_ksize="0"
+  fi
+  echo ${plot_ksize}
+}
+
 # machine and chia variables/parameters
 farmer_key="83afd03a8c9d5a4f688811e66085d35d182b8a9b4b18c6e2bf3be9ec3161267f33f8efcaf6e74a5381f8345e115c2cd1"
 contract_address="xch1km4cvdkshxqaegagmtd2cvuawu0rt7jkhy6x7m9te5627qudsy2qmutfmu"
@@ -71,7 +92,7 @@ plot_dir_array=("/mnt/${drive_name}_0/chia_plots/"
                 "/mnt/${drive_name}_2/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
 thr_array=("10" "10" "10" "10")
-bkt_array=("1024" "1024" "1024" "1024")
+bkt_array=("128" "128" "128" "128")
 first_run_delay=20 # in minutes
 
 # script parameters
@@ -108,18 +129,23 @@ while true; do
 
   while (( $(count_active_processes) < parallelism )); do
 
-    ksize=32
+    plotdir_ksize_array[plot_dir_idx]=$(get_next_ksize)
+    read -r plots_ksize32 plots_ksize33 <<< $(cat /home/cripto-hilkner/chia/scripts/utils/plot_queue.txt)
+    log "plot_queue: k32=${plots_ksize32} / k33=${plots_ksize33}"
     dir=${plot_dir_array[plot_dir_idx]}
     thr=${thr_array[plot_dir_idx]}
     bkt=${bkt_array[plot_dir_idx]}
+    ksize=${plotdir_ksize_array[plot_dir_idx]}
     if [[ ksize == "0" ]]; then
       log "No more plots to be done, exiting script"
       exit 0
     fi
-    log_file="/home/cripto-hilkner/chia/logs/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
+    log_file="/home/cripto-hilkner/chia/logs/plots/plot_k${ksize}_$(date +'%Y-%m-%d_%H_%M_%S').log"
     touch ${log_file}
-    log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
-    nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
+    # log "Starting plot: nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    # nohup /home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
+    log "Starting plot: nohup chia plots create -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &"
+    nohup chia plots create -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address} > ${log_file} 2>&1 &
     pid_array[plot_dir_idx]=$!
     start_time_array[plot_dir_idx]=$(date +%s)
 
