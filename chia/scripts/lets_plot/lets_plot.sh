@@ -101,11 +101,6 @@ echo
 
 while true; do
 
-  if ! $(is_there_enough_free_space); then
-    log "No free space in disk, ending execution"
-    exit 0
-  fi
-
   while (( $(count_active_processes) < parallelism )); do
 
     ksize=32

@@ -31,7 +31,7 @@ done
 
 
 echo "---"
-sleep 60
+sleep 15
 log "Unmounting all drives again"
 bash /home/cripto-hilkner/chia/scripts/utils/umount_all.sh
 echo "---"
