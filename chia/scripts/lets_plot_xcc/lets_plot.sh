@@ -72,6 +72,8 @@ plot_dir_array=("/mnt/${drive_name}_0/chia_plots/"
                 "/mnt/${drive_name}_3/chia_plots/")
 thr_array=("10" "10" "10" "10")
 bkt_array=("1024" "1024" "1024" "1024")
+ksize=31
+port=9699
 first_run_delay=20 # in minutes
 
 # script parameters
@@ -103,14 +105,13 @@ while true; do
 
   while (( $(count_active_processes) < parallelism )); do
 
-    ksize=32
     dir=${plot_dir_array[plot_dir_idx]}
     thr=${thr_array[plot_dir_idx]}
     bkt=${bkt_array[plot_dir_idx]}
 
     log_file="/home/cripto-hilkner/chia/logs/plots/madmax_$(date +'%Y-%m-%d_%H_%M_%S').log"
     touch ${log_file}
-    madmax_cmd_line="/home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address}"
+    madmax_cmd_line="/home/cripto-hilkner/chia/chia-plotter/build/chia_plot -k ${ksize} -x ${port} -r ${thr} -u ${bkt} -t ${dir} -d ${dir} -f ${farmer_key} -c ${contract_address}"
     log "Starting plot: nohup ${madmax_cmd_line} > ${log_file} 2>&1 &"
     nohup ${madmax_cmd_line} > ${log_file} 2>&1 &
     pid_array[plot_dir_idx]=$!
