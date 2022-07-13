@@ -1,2 +1,2 @@
 # chia
-Scripts for automation of chia plotting
+Scripts for automation of Chia (XCH) plotting (crypto mining)
